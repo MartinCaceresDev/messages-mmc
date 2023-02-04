@@ -3,13 +3,16 @@ import { useAppContext } from "../context/ChatProvider"
 
 export const SingleUser = ({ otherUser: singleOtherUser }) => {
 
-  const { onOtherUserClick, toggleSeen, otherUser, unreadMessages } = useAppContext();
+  const { onOtherUserClick, toggleSeen, otherUser, unreadMessages, user } = useAppContext();
   const [unSeenMessages, setUnSeenMessages] = useState(0);
+
 
   useEffect(() => {
     const unSeenMessagesList = unreadMessages.length
-      ? unreadMessages.filter(message => message.from.uid === singleOtherUser.uid && !message.read)
+      ? unreadMessages.filter(message => message.from.uid === singleOtherUser.uid && message.to.uid === user.uid)
       : [];
+
+    console.log(singleOtherUser, unSeenMessagesList.length);
     setUnSeenMessages(unSeenMessagesList.length);
   }, [unreadMessages]);
 
@@ -22,12 +25,12 @@ export const SingleUser = ({ otherUser: singleOtherUser }) => {
   return (
     <div
       onClick={() => onOtherUserClick(singleOtherUser)}
-      className='flex justify-between items-center cursor-pointer hover:font-medium hover:bg-green-800 px-4 py-1 transition-all rounded-lg'
+      className={`flex ${unSeenMessages ? 'justify-between' : 'justify-start'}  items-center cursor-pointer hover:font-medium hover:bg-green-800 px-4 py-1 transition-all rounded-lg`}
     >
       <span className='capitalize text-white'>
         {singleOtherUser.displayName}
       </span>
-      <span className='text-white rounded-full text-center pl-1.5 pr-2 bg-orange-600'>{unSeenMessages}</span>
+      {unSeenMessages ? <span className='text-white rounded-full text-center pl-1.5 pr-2 bg-orange-600'>{unSeenMessages}</span> : null}
     </div>
   )
 }

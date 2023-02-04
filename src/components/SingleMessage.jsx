@@ -18,7 +18,7 @@ export const SingleMessage = ({ fromUid, message, userId, time: timeString, last
 
   return (
     <article ref={scrollRef} className={` my-2 ${fromUid === userId ? 'self-end items-end' : 'self-start items-start'} flex flex-col max-w-[50%]`}>
-      <span className={`${fromUid === userId ? 'bg-blue-700' : 'bg-gray-300 text-black'} min-w-full text-center p-3 rounded-lg mb-1 text-sm sm:text-base`}>
+      <span className={`${fromUid === userId ? 'bg-blue-700' : 'bg-gray-300 text-black'} min-w-full text-left p-3 rounded-lg mb-1 text-sm sm:text-base`}>
         {message}
       </span>
       <span className='text-xs text-orange-300 mb-1'>{timestamp}</span>

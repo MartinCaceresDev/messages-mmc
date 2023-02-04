@@ -39,7 +39,7 @@ export const ChatProvider = ({ children }) => {
     try {
       await signInWithEmailAndPassword(auth, email, password);
       setUser(auth.currentUser);
-      navigate('/', { replace: true })
+      navigate('/', { replace: true });
     } catch (err) {
       console.log(err);
     }
@@ -48,6 +48,12 @@ export const ChatProvider = ({ children }) => {
   const logout = async () => {
     try {
       await signOut(auth);
+      setOtherUser(null);
+      setRoom(null);
+      setAllMessages([]);
+      setUnreadMessages([]);
+      const roomsIds = useRoomsIds(user, allUsers);
+      socket.emit('leaveRooms', roomsIds);
     } catch (err) {
       console.log(err);
     }
@@ -80,9 +86,7 @@ export const ChatProvider = ({ children }) => {
   }, [user, loading])
 
   // CHANGE OTHER USER
-  const onOtherUserClick = (anotherUser) => {
-    setOtherUser(anotherUser);
-  };
+  const onOtherUserClick = (anotherUser) => setOtherUser(anotherUser);
 
   // GET ALL UNREAD MESSAGES FROM DB
   useEffect(() => {
@@ -95,7 +99,7 @@ export const ChatProvider = ({ children }) => {
       }
     };
     getUnreadMessages();
-  }, [])
+  }, [user])
 
   // GET CHATS WITH OTHER USER FROM DB
   useEffect(() => {
@@ -116,9 +120,9 @@ export const ChatProvider = ({ children }) => {
   // SEND NEW MESSAGE
   const sendNewMessage = async (message) => {
     const newMessage = prepareMessage(message, user, otherUser, room);
-    socket.emit('newMessage', { newMessage, room });
+    socket.emit('newMessage', newMessage);
     setAllMessages(prev => [...prev, newMessage]);
-    makeRequest('post', urlServer, '/api/chats', newMessage)
+    makeRequest('post', urlServer, '/api/chats', newMessage);
   };
 
   // UPDATE USERS LIST
