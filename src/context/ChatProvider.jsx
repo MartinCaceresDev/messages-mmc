@@ -1,19 +1,14 @@
 import { createContext, useContext, useEffect, useState } from 'react';
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, updateProfile } from 'firebase/auth';
-import { io } from 'socket.io-client';
-import { useNavigate } from 'react-router-dom';
-import { auth } from '../../firebase-config';
-import { useRoomsIds, prepareMessage, makeRequest, urlServer } from '../utils';
+import { getUnreadMessages, makeRequest } from '../helpers';
+import { usePrepareMessage, useRoomsIds } from '../hooks';
+import { useAuthContext } from './AuthProvider';
 
-const socket = io(urlServer);
 
-const AppContext = createContext();
-export const useAppContext = () => useContext(AppContext);
+const ChatContext = createContext();
+export const useChatContext = () => useContext(ChatContext);
 
 export const ChatProvider = ({ children }) => {
-  const navigate = useNavigate();
-  const [user, setUser] = useState({});
-  const [loading, setLoading] = useState(true);
+
   const [allUsers, setAllUsers] = useState([]);
   const [allMessages, setAllMessages] = useState([]);
   const [otherUser, setOtherUser] = useState(null);
@@ -22,59 +17,20 @@ export const ChatProvider = ({ children }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [unreadMessages, setUnreadMessages] = useState([]);
 
-  const createUser = async (username, email, password) => {
-    try {
-      await createUserWithEmailAndPassword(auth, email, password);
-      await updateProfile(auth.currentUser, { displayName: username });
-      setUser(auth.currentUser);
-      socket.emit('newUser', { user: auth.currentUser });
-      navigate('/', { replace: true });
-      makeRequest('post', urlServer, '/api/users', { user: auth.currentUser })
-    } catch (err) {
-      console.log(err);
-    }
-  };
+  const { user, loading, socket } = useAuthContext();
 
-  const login = async (email, password) => {
-    try {
-      await signInWithEmailAndPassword(auth, email, password);
-      setUser(auth.currentUser);
-      navigate('/', { replace: true });
-    } catch (err) {
-      console.log(err);
-    }
+  // JOIN USER TO ALL ROOMS
+  const joinToRooms = (onlyOtherUsers) => {
+    const roomsIds = useRoomsIds(user, onlyOtherUsers);
+    socket.emit('joinToRooms', roomsIds);
   };
-
-  const logout = async () => {
-    try {
-      await signOut(auth);
-      setOtherUser(null);
-      setRoom(null);
-      setAllMessages([]);
-      setUnreadMessages([]);
-      const roomsIds = useRoomsIds(user, allUsers);
-      socket.emit('leaveRooms', roomsIds);
-    } catch (err) {
-      console.log(err);
-    }
-  };
-
-  // RECOVER USER
-  useEffect(() => {
-    onAuthStateChanged(auth, (currentUser) => {
-      setUser(currentUser);
-      setLoading(false);
-      if (currentUser) navigate('/');
-    })
-  }, [])
 
   // GET USERS LIST
   const getUsers = async () => {
     try {
-      const data = await makeRequest('get', urlServer, '/api/users');
+      const data = await makeRequest('get', '/api/users');
       const onlyOtherUsers = data.filter(item => item.user.uid !== user.uid);
-      const roomsIds = useRoomsIds(user, onlyOtherUsers);
-      socket.emit('joinToRooms', roomsIds);
+      joinToRooms(onlyOtherUsers)
       setAllUsers(onlyOtherUsers);
     } catch (err) {
       console.log(err);
@@ -90,15 +46,9 @@ export const ChatProvider = ({ children }) => {
 
   // GET ALL UNREAD MESSAGES FROM DB
   useEffect(() => {
-    const getUnreadMessages = async () => {
-      try {
-        const unreadMessagesList = await makeRequest('get', urlServer, '/api/chats');
-        setUnreadMessages(unreadMessagesList);
-      } catch (err) {
-        console.log(err);
-      }
-    };
-    getUnreadMessages();
+    getUnreadMessages()
+      .then(unreadMessagesList => setUnreadMessages(unreadMessagesList))
+      .catch(err => console.log(err));
   }, [user])
 
   // GET CHATS WITH OTHER USER FROM DB
@@ -108,7 +58,7 @@ export const ChatProvider = ({ children }) => {
         try {
           const roomId = useRoomsIds(user, null, otherUser);
           setRoom(roomId);
-          const messagesDB = await makeRequest('get', urlServer, `/api/chats/${roomId}`);
+          const messagesDB = await makeRequest('get', `/api/chats/${roomId}`);
           setAllMessages(messagesDB);
         } catch (err) {
           console.log(err);
@@ -119,13 +69,13 @@ export const ChatProvider = ({ children }) => {
 
   // SEND NEW MESSAGE
   const sendNewMessage = async (message) => {
-    const newMessage = prepareMessage(message, user, otherUser, room);
+    const newMessage = usePrepareMessage(message, user, otherUser, room);
     socket.emit('newMessage', newMessage);
     setAllMessages(prev => [...prev, newMessage]);
-    makeRequest('post', urlServer, '/api/chats', newMessage);
+    makeRequest('post', '/api/chats', newMessage);
   };
 
-  // UPDATE USERS LIST
+  // WHEN ANOTHER USER CONNECTS, UPDATE LIST
   useEffect(() => {
     const handleNewUser = (newUser) => {
       const allUsersUpdated = [...allUsers, newUser];
@@ -152,11 +102,19 @@ export const ChatProvider = ({ children }) => {
   // EMIT MESSAGES AS SEEN
   const messagesAreSeen = async () => {
     socket.emit('messagesAreSeen', { room, allMessages, user: otherUser });
+    const tempUnreadMessages = [];
+    unreadMessages.forEach(msg => {
+      if (msg.from.uid === otherUser.uid && msg.to.uid === user.uid) {
+        return;
+      }
+      return tempUnreadMessages.push(msg);
+    });
+    setUnreadMessages(tempUnreadMessages);
     setToggleSeen(prev => !prev);
-    makeRequest('patch', urlServer, `/api/chats/${room}`, otherUser);
+    makeRequest('patch', `/api/chats/${room}`, otherUser);
   };
 
-  // RECEIVE MESSAGES ARE SEEN
+  // RECEIVE MESSAGES AS SEEN
   useEffect(() => {
     const onMessagesSeen = ({ allMessages, user }) => {
       const tempMessagesSeen = [];
@@ -176,11 +134,11 @@ export const ChatProvider = ({ children }) => {
   }, [toggleSeen])
 
   return (
-    <AppContext.Provider value={{
-      user, createUser, login, logout, loading, allUsers, sendNewMessage, onOtherUserClick, allMessages,
-      otherUser, messagesAreSeen, isMenuOpen, setIsMenuOpen, toggleSeen, unreadMessages
+    <ChatContext.Provider value={{
+      allUsers, sendNewMessage, onOtherUserClick, allMessages, setAllMessages, otherUser, setOtherUser,
+      messagesAreSeen, isMenuOpen, setIsMenuOpen, toggleSeen, unreadMessages, setUnreadMessages, setRoom
     }}>
       {children}
-    </AppContext.Provider>
+    </ChatContext.Provider>
   )
 }

@@ -1,9 +1,9 @@
 import { Messages, UsersBar } from "../components"
-import { useAppContext } from "../context/ChatProvider"
+import { useChatContext } from "../context/ChatProvider"
 
 export const ChatsPage = () => {
 
-  const { otherUser, messagesAreSeen } = useAppContext();
+  const { otherUser, messagesAreSeen } = useChatContext();
 
   const handleSeen = () => otherUser && messagesAreSeen();
 

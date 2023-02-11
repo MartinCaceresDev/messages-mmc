@@ -2,12 +2,14 @@ import { useEffect, useState } from "react";
 import MenuIcon from '@mui/icons-material/Menu';
 import CloseIcon from '@mui/icons-material/Close';
 import SendIcon from '@mui/icons-material/Send';
-import { useAppContext } from "../context/ChatProvider";
+import { useChatContext } from "../context/ChatProvider";
+import { useAuthContext } from "../context/AuthProvider";
 import { SingleMessage } from "./";
 
 export const Messages = () => {
 
-  const { sendNewMessage, allMessages, otherUser, user, setIsMenuOpen, isMenuOpen } = useAppContext();
+  const { user } = useAuthContext();
+  const { sendNewMessage, allMessages, otherUser, setIsMenuOpen, isMenuOpen } = useChatContext();
   const [newMessage, setNewMessage] = useState('');
   const [messagesToRender, setMessagesToRender] = useState([]);
 

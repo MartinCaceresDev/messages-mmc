@@ -1,11 +1,11 @@
 import { useEffect, useRef } from "react";
 import DoneAllIcon from '@mui/icons-material/DoneAll';
-import { useAppContext } from "../context/ChatProvider";
+import { useChatContext } from "../context/ChatProvider";
 
 export const SingleMessage = ({ fromUid, message, userId, time: timeString, lastSeen }) => {
   const scrollRef = useRef();
 
-  const { allMessages } = useAppContext();
+  const { allMessages } = useChatContext();
 
   useEffect(() => {
     scrollRef.current.scrollIntoView({ behavior: "smooth" })

@@ -1,13 +1,13 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { useAppContext } from "../context/ChatProvider";
+import { useAuthContext } from "../context/AuthProvider";
 
 export const RegisterPage = () => {
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
-  const { createUser } = useAppContext();
+  const { createUser } = useAuthContext();
 
   const onSubmit = (e) => {
     e.preventDefault();

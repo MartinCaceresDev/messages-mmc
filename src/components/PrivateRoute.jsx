@@ -1,12 +1,12 @@
 import { Navigate } from "react-router-dom";
-import { useAppContext } from "../context/ChatProvider"
+import { useAuthContext } from "../context/AuthProvider"
 import { Loading } from "./";
 
 export const PrivateRoute = ({ children }) => {
 
-  const { user, loading } = useAppContext();
+  const { user, loading } = useAuthContext();
 
-  if (user) return <> { children } </>;
-  else if (loading) return <> { <Loading />} </>;
+  if (user) return <> {children} </>;
+  else if (loading) return <> {<Loading />} </>;
   else return <Navigate to='/login' />;
 }
