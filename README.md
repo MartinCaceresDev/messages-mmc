@@ -2,4 +2,4 @@
 
 #### Backend code: https://github.com/MartinCaceresDev/messages-mmc-api
 
-#### Project Deploy: https://chatty-mmc.onrender.com/
+#### Project Deploy: https://messages-mmc.onrender.com/
