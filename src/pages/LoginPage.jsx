@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
@@ -12,42 +11,35 @@ const schema = yup.object().shape({
 
 export const LoginPage = () => {
 
-  // const [email, setEmail] = useState('');
-  // const [password, setPassword] = useState('');
-
   const { register, handleSubmit, formState: { errors } } = useForm({ resolver: yupResolver(schema) });
 
   const { login } = useAuthContext();
 
-  const onSubmit = ({ email, password }) => {
-    // e.preventDefault();
-    // if (!email || !password) return;
-    login(email, password);
-  };
+  const onSubmit = ({ email, password }) => login(email, password);
 
   return (
     <div className='bg-gray-900 h-screen flex justify-center items-center'>
       <form onSubmit={handleSubmit(onSubmit)} className='py-8 px-5 sm:px-12 outline-none w-80 flex flex-col bg-gray-400 rounded-lg'>
         <h1 className='text-center text-2xl pb-3 font-semibold text-teal-900'>Login</h1>
+
         <input
+          autoComplete='false'
           className='outline-none my-1.5 p-2'
           type='text'
           placeholder='your email'
-          // value={email}
-          // onChange={e => setEmail(e.target.value)}
           {...register('email')}
         />
         {errors.email?.message && <span className='text-xs text-red-600 italic mb-2'>{errors.email.message}</span>}
+
         <input
-          autoComplete="false"
+          autoComplete='false'
           className='outline-none my-1.5 p-2'
           type='password'
           placeholder='your password'
-          // value={password}
-          // onChange={e => setPassword(e.target.value)}
           {...register('password')}
         />
         {errors.password?.message && <span className='text-xs text-red-600 italic mb-2'>{errors.password.message}</span>}
+
         <button className='bg-blue-700 transition-all text-white rounded-lg py-2 font-medium my-3 cursor-pointer hover:bg-blue-900'>
           Login
         </button>
