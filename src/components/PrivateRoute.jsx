@@ -6,7 +6,7 @@ export const PrivateRoute = ({ children }) => {
 
   const { user, loading } = useAuthContext();
 
-  if (user) return <> {children} </>;
+  if (user?.email) return <> {children} </>;
   else if (loading) return <> {<Loading />} </>;
   else return <Navigate to='/login' />;
 }
