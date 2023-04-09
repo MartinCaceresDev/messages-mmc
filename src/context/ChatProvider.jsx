@@ -90,9 +90,7 @@ export const ChatProvider = ({ children }) => {
   // NEW MESSAGE RECEIVED
   useEffect(() => {
     const handleNewMessage = (newMessage) => {
-      if (newMessage.room === room) {
-        setAllMessages(prev => [...prev, newMessage])
-      }
+      newMessage.room === room && setAllMessages(prev => [...prev, newMessage]);
       setUnreadMessages(prev => [...prev, newMessage]);
     };
     socket.on('newMessage', handleNewMessage);
@@ -102,15 +100,17 @@ export const ChatProvider = ({ children }) => {
   // EMIT MESSAGES AS SEEN
   const messagesAreSeen = async () => {
     socket.emit('messagesAreSeen', { room, allMessages, user: otherUser });
+
     const tempUnreadMessages = [];
     unreadMessages.forEach(msg => {
-      if (msg.from.uid === otherUser.uid && msg.to.uid === user.uid) {
-        return;
-      }
+      if (msg.from.uid === otherUser.uid && msg.to.uid === user.uid) return;
       return tempUnreadMessages.push(msg);
     });
+
     setUnreadMessages(tempUnreadMessages);
     setToggleSeen(prev => !prev);
+
+    // save seen in DB
     makeRequest('patch', `/api/chats/${room}`, otherUser);
   };
 
@@ -125,9 +125,7 @@ export const ChatProvider = ({ children }) => {
           tempMessagesSeen.push(message);
         } else return;
       });
-      if (tempMessagesSeen.length) {
-        setAllMessages(tempMessagesSeen);
-      }
+      if (tempMessagesSeen.length) setAllMessages(tempMessagesSeen);
     };
     socket.on('messagesAreSeen', onMessagesSeen);
     return () => socket.off('messagesAreSeen', onMessagesSeen);

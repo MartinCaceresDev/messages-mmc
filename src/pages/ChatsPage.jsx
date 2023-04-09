@@ -1,10 +1,11 @@
 import { Messages, UsersBar } from "../components"
-import { useChatContext } from "../context/ChatProvider"
+import { useChatContext } from "../context"
 
 export const ChatsPage = () => {
 
   const { otherUser, messagesAreSeen } = useChatContext();
 
+  // mouse or touch event indicate when message is seen
   const handleSeen = () => otherUser && messagesAreSeen();
 
   return (

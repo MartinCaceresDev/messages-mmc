@@ -1,7 +1,15 @@
 import axios from 'axios';
 import { urlServer } from '../utils';
 
-export const makeRequest = async (method, path, payload)=>{
+/**
+ * 
+ * @param {String} method - (String) Request method.
+ * @param {String} path - (String) Path for request.
+ * @param {{}} payload - (Object) (optional) The body needed for the request.
+ * @returns {{}[]} If GET method is used it returns an array, otherwise it makes request and returns nothing.
+ */
+
+export const makeRequest = async (method, path, payload=null)=>{
   try {
     if (method === 'get'){
       const { data } = await axios.get( urlServer + path );

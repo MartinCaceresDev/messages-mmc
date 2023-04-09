@@ -27,6 +27,8 @@ export const AuthProvider = ({ children }) => {
       setUser(auth.currentUser);
       socket.emit('newUser', { user: auth.currentUser });
       navigate('/', { replace: true });
+
+      // save new user in DB
       makeRequest('post', '/api/users', { user: auth.currentUser })
     } catch (err) {
       console.log(err);
@@ -53,7 +55,7 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  // RECOVER USER
+  // if page reloads we recover user
   useEffect(() => {
     onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);

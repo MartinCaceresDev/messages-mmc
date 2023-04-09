@@ -1,5 +1,9 @@
 import { makeRequest } from "./";
 
+/**
+ * 
+ * @returns { {}[] } An array with all unread messages.
+ */
 
 export const getUnreadMessages = async () => {
   try {
