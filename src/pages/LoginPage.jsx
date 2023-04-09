@@ -26,7 +26,7 @@ export const LoginPage = () => {
 
         {/* email */}
         <input
-          autoComplete='false'
+          autoComplete='off'
           className='outline-none my-1.5 p-2'
           type='text'
           placeholder='your email'
@@ -36,7 +36,6 @@ export const LoginPage = () => {
 
         {/* password */}
         <input
-          autoComplete='false'
           className='outline-none my-1.5 p-2'
           type='password'
           placeholder='your password'

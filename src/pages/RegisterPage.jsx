@@ -28,7 +28,7 @@ export const RegisterPage = () => {
 
         {/* username */}
         <input
-          autoComplete='false'
+          autoComplete='off'
           className='outline-none my-1.5 p-2'
           type='text'
           placeholder='your username'
@@ -39,7 +39,7 @@ export const RegisterPage = () => {
 
         {/* email */}
         <input
-          autoComplete='false'
+          autoComplete='off'
           className='outline-none my-1.5 p-2'
           type='email'
           placeholder='your email'
@@ -50,7 +50,6 @@ export const RegisterPage = () => {
 
         {/* password */}
         <input
-          autoComplete='false'
           className='outline-none my-1.5 p-2'
           type='password'
           placeholder='your password'
