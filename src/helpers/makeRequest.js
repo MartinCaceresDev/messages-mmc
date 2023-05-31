@@ -12,12 +12,12 @@ import { urlServer } from '../utils';
 export const makeRequest = async (method, path, payload=null)=>{
   try {
     if (method === 'get'){
-      const { data } = await axios.get( urlServer + path );
+      const { data } = await axios.get( urlServer.production + path );
       return data;
     } else if (method === 'post'){
-      await axios.post( urlServer + path, payload );
+      await axios.post( urlServer.production + path, payload );
     } else if (method === 'patch'){
-      await axios.patch( urlServer + path, payload)
+      await axios.patch( urlServer.production + path, payload)
     } 
   } catch(err){
     console.log(err);

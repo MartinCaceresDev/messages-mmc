@@ -5,5 +5,6 @@ export const actions = {
   setRoom: 'SET_ROOM',
   setToggleSeen: 'SET_TOGGLE_SEEN',
   setIsMenuOpen: 'SET_IS_MENU_OPEN',
-  setUnreadMessages: 'SET_UNREADMESSAGES'
+  setUnreadMessages: 'SET_UNREADMESSAGES',
+  setLoadingMessages: 'SET_LOADING_MESSAGES',
 }

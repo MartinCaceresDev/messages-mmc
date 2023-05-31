@@ -6,5 +6,6 @@ export const chatInitialState = {
   room: null,
   toggleSeen: false,
   isMenuOpen: false,
-  unreadMessages: []
+  unreadMessages: [],
+  loadingMessages: false,
 }

@@ -5,11 +5,11 @@ import {
 import { io } from 'socket.io-client';
 import { useNavigate } from 'react-router-dom';
 import { auth } from '../../firebase-config';
-import { urlServer } from '../utils';
 import { makeRequest } from '../helpers';
 import { useRoomsIds } from '../hooks';
+import { urlServer } from '../utils';
 
-const socket = io(urlServer);
+const socket = io(urlServer.production);
 
 const AuthContext = createContext();
 export const useAuthContext = () => useContext(AuthContext);
@@ -29,7 +29,7 @@ export const AuthProvider = ({ children }) => {
       navigate('/', { replace: true });
 
       // save new user in DB
-      makeRequest('post', '/api/users', { user: auth.currentUser })
+      makeRequest('post', '/api/users', { user: auth.currentUser });
     } catch (err) {
       console.log(err);
     }
@@ -45,7 +45,7 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const logout = async () => {
+  const logout = async (allUsers) => {
     try {
       await signOut(auth);
       const roomsIds = useRoomsIds(user, allUsers);
@@ -61,12 +61,12 @@ export const AuthProvider = ({ children }) => {
       setUser(currentUser);
       setLoading(false);
       if (currentUser) navigate('/');
-    })
-  }, [])
+    });
+  }, []);
 
   return (
     <AuthContext.Provider value={{ user, loading, createUser, login, logout, socket }}>
       {children}
     </AuthContext.Provider>
   );
-}
+};

@@ -9,14 +9,14 @@ export const SingleMessage = ({ fromUid, message, userId, time: timeString, last
   const { allMessages } = useChatContext();
 
   useEffect(() => {
-    scrollRef.current.scrollIntoView({ behavior: "smooth" })
+    scrollRef.current.scrollIntoView({ behavior: "smooth" });
   }, [allMessages]);
 
   // get exact message time
   const time = new Date(timeString);
   const hours = time.getHours() < 10 ? `0${time.getHours()}` : time.getHours();
   const minutes = time.getMinutes() < 10 ? `0${time.getMinutes()}` : time.getMinutes();
-  const timestamp = `${time.toLocaleDateString().slice(0, -4)}${time.getFullYear() - 2000} ${hours}:${minutes}`
+  const timestamp = `${time.toLocaleDateString().slice(0, -4)}${time.getFullYear() - 2000} ${hours}:${minutes}`;
 
   // get time ago message
   const timeAgo = formatDistanceToNow(time);
@@ -41,5 +41,5 @@ export const SingleMessage = ({ fromUid, message, userId, time: timeString, last
           <DoneAllIcon sx={{ height: '15px' }} />
         </span>}
     </article>
-  )
-}
+  );
+};

@@ -5,7 +5,7 @@ export const chatReducer = (state, action) =>{
     case actions.setAllUsers:
       return {
         ...state,
-        allusers: action.payload
+        allUsers: action.payload
       }
     case actions.setAllMessages:
       return {
@@ -36,6 +36,11 @@ export const chatReducer = (state, action) =>{
       return {
         ...state,
         unreadMessages: action.payload
+      }
+    case actions.setLoadingMessages:
+      return {
+        ...state,
+        loadingMessages: action.payload
       }
     default:
       return state

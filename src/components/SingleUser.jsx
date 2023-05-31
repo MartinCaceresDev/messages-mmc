@@ -9,6 +9,7 @@ export const SingleUser = ({ otherUser: singleOtherUser }) => {
 
   // on click on user name we change other user
   const handleUserClick = () => {
+    dispatch({ type: actions.setAllMessages, payload: [] });
     onOtherUserClick(singleOtherUser);
     dispatch({ type: actions.setIsMenuOpen, payload: false });
   };

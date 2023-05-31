@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState, useReducer } from 'react';
+import { createContext, useContext, useEffect, useReducer } from 'react';
 import { getUnreadMessages, makeRequest } from '../helpers';
 import { usePrepareMessage, useRoomsIds } from '../hooks';
 import { useAuthContext } from './AuthProvider';
@@ -23,25 +23,25 @@ export const ChatProvider = ({ children }) => {
   const getUsers = async () => {
     try {
       const data = await makeRequest('get', '/api/users');
-      const onlyOtherUsers = data.filter(item => item.user.uid !== user.uid);
+      const onlyOtherUsers = data.filter(item => item.user.uid !== user?.uid);
       joinToRooms(onlyOtherUsers);
-      dispatch({type: actions.setAllUsers, payload: onlyOtherUsers});
+      dispatch({ type: actions.setAllUsers, payload: onlyOtherUsers });
     } catch (err) {
       console.log(err);
     }
   };
 
   useEffect(() => {
-    if (!loading) getUsers();
+    if (!loading && user) getUsers();
   }, [user, loading]);
 
   // CHANGE OTHER USER
-  const onOtherUserClick = (anotherUser) => dispatch({type: actions.setOtherUser, payload: anotherUser});
+  const onOtherUserClick = (anotherUser) => dispatch({ type: actions.setOtherUser, payload: anotherUser });
 
   // GET ALL UNREAD MESSAGES FROM DB
   useEffect(() => {
     getUnreadMessages()
-      .then(unreadMessagesList => dispatch({type: actions.setUnreadMessages, payload: unreadMessagesList}))
+      .then(unreadMessagesList => dispatch({ type: actions.setUnreadMessages, payload: unreadMessagesList }))
       .catch(err => console.log(err));
   }, [user]);
 
@@ -50,10 +50,12 @@ export const ChatProvider = ({ children }) => {
     if (chatState.otherUser) {
       (async () => {
         try {
+          dispatch({ type: actions.setLoadingMessages, payload: true })
           const roomId = useRoomsIds(user, null, chatState.otherUser);
-          dispatch({type: actions.setRoom, payload: roomId});
+          dispatch({ type: actions.setRoom, payload: roomId });
           const messagesDB = await makeRequest('get', `/api/chats/${roomId}`);
-          dispatch({type: actions.setAllMessages, payload: messagesDB});
+          dispatch({ type: actions.setAllMessages, payload: messagesDB });
+          dispatch({ type: actions.setLoadingMessages, payload: false })
         } catch (err) {
           console.log(err);
         }
@@ -65,7 +67,7 @@ export const ChatProvider = ({ children }) => {
   const sendNewMessage = async (message) => {
     const newMessage = usePrepareMessage(message, user, chatState.otherUser, chatState.room);
     socket.emit('newMessage', newMessage);
-    dispatch({type: actions.setAllMessages, payload: [...chatState.allMessages, newMessage]});
+    dispatch({ type: actions.setAllMessages, payload: [...chatState.allMessages, newMessage] });
     makeRequest('post', '/api/chats', newMessage);
   };
 
@@ -75,7 +77,7 @@ export const ChatProvider = ({ children }) => {
       const allUsersUpdated = [...chatState.allUsers, newUser];
       const roomsIds = useRoomsIds(user, allUsersUpdated);
       socket.emit('joinToRooms', roomsIds);
-      dispatch({type: actions.setAllUsers, payload: allUsersUpdated});
+      dispatch({ type: actions.setAllUsers, payload: allUsersUpdated });
     };
     socket.on('newUser', handleNewUser);
     return () => socket.off('newUser', handleNewUser);
@@ -85,7 +87,7 @@ export const ChatProvider = ({ children }) => {
   useEffect(() => {
     const handleNewMessage = (newMessage) => {
       newMessage.room === chatState.room && dispatch(actions.setAllMessages([...chatState.allMessages, newMessage]));
-      dispatch({type: actions.setUnreadMessages, payload: [...chatState.unreadMessages, newMessage]});
+      dispatch({ type: actions.setUnreadMessages, payload: [...chatState.unreadMessages, newMessage] });
     };
     socket.on('newMessage', handleNewMessage);
     return () => socket.off('newMessage', handleNewMessage);
@@ -101,8 +103,8 @@ export const ChatProvider = ({ children }) => {
       return tempUnreadMessages.push(msg);
     });
 
-    dispatch({type: actions.setUnreadMessages, payload: tempUnreadMessages});
-    dispatch({type: actions.setToggleSeen});
+    dispatch({ type: actions.setUnreadMessages, payload: tempUnreadMessages });
+    dispatch({ type: actions.setToggleSeen });
 
     // save seen in DB
     makeRequest('patch', `/api/chats/${chatState.room}`, chatState.otherUser);
@@ -119,7 +121,7 @@ export const ChatProvider = ({ children }) => {
           tempMessagesSeen.push(message);
         } else return;
       });
-      if (tempMessagesSeen.length) dispatch({type: actions.setAllMessages, payload: tempMessagesSeen});
+      if (tempMessagesSeen.length) dispatch({ type: actions.setAllMessages, payload: tempMessagesSeen });
     };
     socket.on('messagesAreSeen', onMessagesSeen);
     return () => socket.off('messagesAreSeen', onMessagesSeen);

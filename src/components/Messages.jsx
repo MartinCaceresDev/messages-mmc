@@ -5,11 +5,11 @@ import CloseIcon from '@mui/icons-material/Close';
 import SendIcon from '@mui/icons-material/Send';
 
 import { useChatContext, useAuthContext, actions } from "../context";
-import { SingleMessage } from "./";
+import { Loading, SingleMessage } from "./";
 
 export const Messages = () => {
 
-  const { sendNewMessage, allMessages, otherUser, isMenuOpen, dispatch } = useChatContext();
+  const { sendNewMessage, allMessages, otherUser, isMenuOpen, loadingMessages, dispatch } = useChatContext();
   const { user } = useAuthContext();
 
   const [newMessage, setNewMessage] = useState('');
@@ -58,7 +58,7 @@ export const Messages = () => {
       {/* messages section */}
       <section className='text-white flex flex-col w-full overflow-y-auto p-3 sm:p-5 bg-black grow'>
 
-        {messagesToRender}
+        {loadingMessages ? <Loading /> : messagesToRender}
 
       </section>
 

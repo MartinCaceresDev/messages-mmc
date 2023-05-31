@@ -1,2 +1,4 @@
-export const urlServer = 'https://messages-mmc-api.onrender.com';
-export const urlServerDev = 'http://localhost:3500';
+export const urlServer = {
+  production: 'https://messages-mmc-api.onrender.com',
+  dev: 'http://localhost:3500'
+}
