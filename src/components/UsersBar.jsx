@@ -7,10 +7,10 @@ export const UsersBar = () => {
   const { allUsers, isMenuOpen, dispatch } = useChatContext();
 
   const onLogout = () => {
-    dispatch(actions.setOtherUser(null));
-    dispatch(actions.setRoom(null));
-    dispatch(actions.setAllMessages([]));
-    dispatch(actions.setUnreadMessages([]));
+    dispatch({ type: actions.setOtherUser, payload: null });
+    dispatch({ type: actions.setRoom, payload: null });
+    dispatch({ type: actions.setAllMessages, payload: [] });
+    dispatch({ type: actions.setUnreadMessages, payload: [] });
     logout();
   };
 

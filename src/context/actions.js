@@ -1,9 +1,9 @@
 export const actions = {
-  setAllUsers: SET_ALL_USERS,
-  setAllMessages: SET_ALL_MESSAGES,
-  setOtherUser: SET_OTHER_USER,
-  setRoom: SET_ROOM,
-  setToggleSeen: SET_TOGGLE_SEEN,
-  setIsMenuOpen: SET_IS_MENU_OPEN,
-  setUnreadMessages: SET_UNREADMESSAGES
+  setAllUsers: 'SET_ALL_USERS',
+  setAllMessages: 'SET_ALL_MESSAGES',
+  setOtherUser: 'SET_OTHER_USER',
+  setRoom: 'SET_ROOM',
+  setToggleSeen: 'SET_TOGGLE_SEEN',
+  setIsMenuOpen: 'SET_IS_MENU_OPEN',
+  setUnreadMessages: 'SET_UNREADMESSAGES'
 }

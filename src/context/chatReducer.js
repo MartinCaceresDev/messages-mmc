@@ -1,4 +1,4 @@
-import { actions } from "./actions";
+import { actions } from "./";
 
 export const chatReducer = (state, action) =>{
   switch (action.type){

@@ -10,7 +10,7 @@ export const SingleUser = ({ otherUser: singleOtherUser }) => {
   // on click on user name we change other user
   const handleUserClick = () => {
     onOtherUserClick(singleOtherUser);
-    dispatch(actions.setIsMenuOpen(false));
+    dispatch({ type: actions.setIsMenuOpen, payload: false });
   };
 
   // check if we have unseen messages from that user

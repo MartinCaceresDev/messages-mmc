@@ -49,7 +49,7 @@ export const Messages = () => {
 
       {/* top bar */}
       <div className='px-4 basis-16 shrink-0 bg-zinc-800 w-full flex justify-center items-center relative'>
-        <div onClick={() => dispatch(actions.setIsMenuOpen(!isMenuOpen))} className='sm:hidden text-white absolute left-6'>
+        <div onClick={() => dispatch({ type: actions.setIsMenuOpen, payload: !isMenuOpen })} className='sm:hidden text-white absolute left-6'>
           {isMenuOpen ? <CloseIcon /> : <MenuIcon />}
         </div>
         <span className='text-lg capitalize text-green-400 font-medium'>{otherUser ? otherUser.displayName : 'Select a user'}</span>
