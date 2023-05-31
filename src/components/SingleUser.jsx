@@ -1,16 +1,16 @@
 import { useEffect, useState } from "react";
-import { useAuthContext, useChatContext } from "../context";
+import { actions, useAuthContext, useChatContext } from "../context";
 
 export const SingleUser = ({ otherUser: singleOtherUser }) => {
 
   const { user } = useAuthContext();
-  const { onOtherUserClick, toggleSeen, otherUser, unreadMessages, setIsMenuOpen } = useChatContext();
+  const { onOtherUserClick, toggleSeen, otherUser, unreadMessages, dispatch } = useChatContext();
   const [unSeenMessages, setUnSeenMessages] = useState(0);
 
   // on click on user name we change other user
   const handleUserClick = () => {
     onOtherUserClick(singleOtherUser);
-    setIsMenuOpen(false);
+    dispatch(actions.setIsMenuOpen(false));
   };
 
   // check if we have unseen messages from that user
@@ -24,7 +24,7 @@ export const SingleUser = ({ otherUser: singleOtherUser }) => {
   // when we open other user messages, unseen messages become 0
   useEffect(() => {
     singleOtherUser.uid === otherUser?.uid && setUnSeenMessages(0);
-  }, [toggleSeen])
+  }, [toggleSeen]);
 
   return (
     <div onClick={handleUserClick} className={`flex ${unSeenMessages ? 'justify-between' : 'justify-start'}  items-center cursor-pointer hover:font-medium hover:bg-green-800 px-4 py-1 transition-all rounded-lg`}>
@@ -38,5 +38,5 @@ export const SingleUser = ({ otherUser: singleOtherUser }) => {
         : null
       }
     </div>
-  )
-}
+  );
+};

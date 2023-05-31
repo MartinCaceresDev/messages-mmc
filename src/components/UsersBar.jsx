@@ -1,16 +1,16 @@
-import { useAuthContext, useChatContext } from "../context";
+import { actions, useAuthContext, useChatContext } from "../context";
 import { SingleUser } from './';
 
 export const UsersBar = () => {
 
   const { logout, user } = useAuthContext();
-  const { allUsers, isMenuOpen, setOtherUser, setRoom, setAllMessages, setUnreadMessages } = useChatContext();
+  const { allUsers, isMenuOpen, dispatch } = useChatContext();
 
   const onLogout = () => {
-    setOtherUser(null);
-    setRoom(null);
-    setAllMessages([]);
-    setUnreadMessages([]);
+    dispatch(actions.setOtherUser(null));
+    dispatch(actions.setRoom(null));
+    dispatch(actions.setAllMessages([]));
+    dispatch(actions.setUnreadMessages([]));
     logout();
   };
 
@@ -41,5 +41,5 @@ export const UsersBar = () => {
         }
       </div>
     </div>
-  )
-}
+  );
+};

@@ -1,5 +1,6 @@
-import { Messages, UsersBar } from "../components"
-import { useChatContext } from "../context"
+import { Suspense } from 'react';
+import { Loading, Messages, UsersBar } from "../components";
+import { useChatContext } from "../context";
 
 export const ChatsPage = () => {
 
@@ -15,9 +16,13 @@ export const ChatsPage = () => {
       onTouchStart={handleSeen}
     >
       <main className='flex rounded-lg w-full sm:w-5/6 lg:w-2/3 h-full sm:h-2/3 relative'>
-        <UsersBar />
-        <Messages />
+        <Suspense fallback={<Loading />}>
+          <UsersBar />
+        </Suspense>
+        <Suspense fallback={<Loading />}>
+          <Messages />
+        </Suspense>
       </main>
     </div>
-  )
-}
+  );
+};

@@ -1,7 +1,8 @@
-import { createContext, useContext, useEffect, useState } from 'react';
+import { createContext, useContext, useEffect, useState, useReducer } from 'react';
 import { getUnreadMessages, makeRequest } from '../helpers';
 import { usePrepareMessage, useRoomsIds } from '../hooks';
 import { useAuthContext } from './AuthProvider';
+import { actions, chatInitialState, chatReducer } from './';
 
 
 const ChatContext = createContext();
@@ -9,15 +10,8 @@ export const useChatContext = () => useContext(ChatContext);
 
 export const ChatProvider = ({ children }) => {
 
-  const [allUsers, setAllUsers] = useState([]);
-  const [allMessages, setAllMessages] = useState([]);
-  const [otherUser, setOtherUser] = useState(null);
-  const [room, setRoom] = useState(null);
-  const [toggleSeen, setToggleSeen] = useState(false);
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [unreadMessages, setUnreadMessages] = useState([]);
-
   const { user, loading, socket } = useAuthContext();
+  const [chatState, dispatch] = useReducer(chatReducer, chatInitialState);
 
   // JOIN USER TO ALL ROOMS
   const joinToRooms = (onlyOtherUsers) => {
@@ -30,8 +24,8 @@ export const ChatProvider = ({ children }) => {
     try {
       const data = await makeRequest('get', '/api/users');
       const onlyOtherUsers = data.filter(item => item.user.uid !== user.uid);
-      joinToRooms(onlyOtherUsers)
-      setAllUsers(onlyOtherUsers);
+      joinToRooms(onlyOtherUsers);
+      dispatch(actions.setAllUsers(onlyOtherUsers));
     } catch (err) {
       console.log(err);
     }
@@ -39,79 +33,79 @@ export const ChatProvider = ({ children }) => {
 
   useEffect(() => {
     if (!loading) getUsers();
-  }, [user, loading])
+  }, [user, loading]);
 
   // CHANGE OTHER USER
-  const onOtherUserClick = (anotherUser) => setOtherUser(anotherUser);
+  const onOtherUserClick = (anotherUser) => dispatch(actions.setOtherUser(anotherUser));
 
   // GET ALL UNREAD MESSAGES FROM DB
   useEffect(() => {
     getUnreadMessages()
-      .then(unreadMessagesList => setUnreadMessages(unreadMessagesList))
+      .then(unreadMessagesList => dispatch(actions.setUnreadMessages(unreadMessagesList)))
       .catch(err => console.log(err));
-  }, [user])
+  }, [user]);
 
   // GET CHATS WITH OTHER USER FROM DB
   useEffect(() => {
-    if (otherUser) {
+    if (chatState.otherUser) {
       (async () => {
         try {
-          const roomId = useRoomsIds(user, null, otherUser);
-          setRoom(roomId);
+          const roomId = useRoomsIds(user, null, chatState.otherUser);
+          dispatch(actions.setRoom(roomId));
           const messagesDB = await makeRequest('get', `/api/chats/${roomId}`);
-          setAllMessages(messagesDB);
+          dispatch(actions.setAllMessages(messagesDB));
         } catch (err) {
           console.log(err);
         }
       })();
     }
-  }, [otherUser])
+  }, [chatState.otherUser]);
 
   // SEND NEW MESSAGE
   const sendNewMessage = async (message) => {
-    const newMessage = usePrepareMessage(message, user, otherUser, room);
+    const newMessage = usePrepareMessage(message, user, chatState.otherUser, chatState.room);
     socket.emit('newMessage', newMessage);
-    setAllMessages(prev => [...prev, newMessage]);
+    dispatch(actions.setAllMessages([...chatState.allMessages, newMessage]));
     makeRequest('post', '/api/chats', newMessage);
   };
 
   // WHEN ANOTHER USER CONNECTS, UPDATE LIST
   useEffect(() => {
     const handleNewUser = (newUser) => {
-      const allUsersUpdated = [...allUsers, newUser];
+      const allUsersUpdated = [...chatState.allUsers, newUser];
       const roomsIds = useRoomsIds(user, allUsersUpdated);
       socket.emit('joinToRooms', roomsIds);
-      setAllUsers(allUsersUpdated)
+      dispatch(actions.setAllUsers(allUsersUpdated));
     };
     socket.on('newUser', handleNewUser);
     return () => socket.off('newUser', handleNewUser);
-  }, [allUsers]);
+  }, [chatState.allUsers]);
 
   // NEW MESSAGE RECEIVED
   useEffect(() => {
     const handleNewMessage = (newMessage) => {
-      newMessage.room === room && setAllMessages(prev => [...prev, newMessage]);
-      setUnreadMessages(prev => [...prev, newMessage]);
+      newMessage.room === chatState.room && dispatch(actions.setAllMessages([...chatState.allMessages, newMessage]));
+      dispatch(actions.setUnreadMessages([...chatState.unreadMessages, newMessage]));
     };
     socket.on('newMessage', handleNewMessage);
     return () => socket.off('newMessage', handleNewMessage);
-  }, [allMessages])
+  }, [chatState.allMessages]);
 
   // EMIT MESSAGES AS SEEN
   const messagesAreSeen = async () => {
-    socket.emit('messagesAreSeen', { room, allMessages, user: otherUser });
+    socket.emit('messagesAreSeen', { room: chatState.room, allMessages: chatState.allMessages, user: chatState.otherUser });
 
     const tempUnreadMessages = [];
-    unreadMessages.forEach(msg => {
-      if (msg.from.uid === otherUser.uid && msg.to.uid === user.uid) return;
+    chatState.unreadMessages.forEach(msg => {
+      if (msg.from.uid === chatState.otherUser.uid && msg.to.uid === user.uid) return;
       return tempUnreadMessages.push(msg);
     });
 
-    setUnreadMessages(tempUnreadMessages);
-    setToggleSeen(prev => !prev);
+    dispatch(actions.setUnreadMessages(tempUnreadMessages));
+    dispatch(actions.setToggleSeen());
 
     // save seen in DB
-    makeRequest('patch', `/api/chats/${room}`, otherUser);
+    makeRequest('patch', `/api/chats/${chatState.room}`, chatState.otherUser);
   };
 
   // RECEIVE MESSAGES AS SEEN
@@ -119,24 +113,21 @@ export const ChatProvider = ({ children }) => {
     const onMessagesSeen = ({ allMessages, user }) => {
       const tempMessagesSeen = [];
       allMessages.forEach(message => {
-        if (message.from.uid === user.uid && message.room === room) {
+        if (message.from.uid === user.uid && message.room === chatState.room) {
           tempMessagesSeen.push({ ...message, read: true });
-        } else if (message.room === room) {
+        } else if (message.room === chatState.room) {
           tempMessagesSeen.push(message);
         } else return;
       });
-      if (tempMessagesSeen.length) setAllMessages(tempMessagesSeen);
+      if (tempMessagesSeen.length) dispatch(actions.setAllMessages(tempMessagesSeen));
     };
     socket.on('messagesAreSeen', onMessagesSeen);
     return () => socket.off('messagesAreSeen', onMessagesSeen);
-  }, [toggleSeen])
+  }, [chatState.toggleSeen]);
 
   return (
-    <ChatContext.Provider value={{
-      allUsers, sendNewMessage, onOtherUserClick, allMessages, setAllMessages, otherUser, setOtherUser,
-      messagesAreSeen, isMenuOpen, setIsMenuOpen, toggleSeen, unreadMessages, setUnreadMessages, setRoom
-    }}>
+    <ChatContext.Provider value={{ sendNewMessage, onOtherUserClick, dispatch, messagesAreSeen, ...chatState }}>
       {children}
     </ChatContext.Provider>
-  )
-}
+  );
+};

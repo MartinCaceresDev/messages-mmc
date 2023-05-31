@@ -4,12 +4,12 @@ import MenuIcon from '@mui/icons-material/Menu';
 import CloseIcon from '@mui/icons-material/Close';
 import SendIcon from '@mui/icons-material/Send';
 
-import { useChatContext, useAuthContext } from "../context";
+import { useChatContext, useAuthContext, actions } from "../context";
 import { SingleMessage } from "./";
 
 export const Messages = () => {
 
-  const { sendNewMessage, allMessages, otherUser, setIsMenuOpen, isMenuOpen } = useChatContext();
+  const { sendNewMessage, allMessages, otherUser, isMenuOpen, dispatch } = useChatContext();
   const { user } = useAuthContext();
 
   const [newMessage, setNewMessage] = useState('');
@@ -41,7 +41,7 @@ export const Messages = () => {
     )
     );
     setMessagesToRender(tempMessages);
-  }, [allMessages])
+  }, [allMessages]);
 
 
   return (
@@ -49,7 +49,7 @@ export const Messages = () => {
 
       {/* top bar */}
       <div className='px-4 basis-16 shrink-0 bg-zinc-800 w-full flex justify-center items-center relative'>
-        <div onClick={() => setIsMenuOpen(prev => !prev)} className='sm:hidden text-white absolute left-6'>
+        <div onClick={() => dispatch(actions.setIsMenuOpen(!isMenuOpen))} className='sm:hidden text-white absolute left-6'>
           {isMenuOpen ? <CloseIcon /> : <MenuIcon />}
         </div>
         <span className='text-lg capitalize text-green-400 font-medium'>{otherUser ? otherUser.displayName : 'Select a user'}</span>
@@ -78,5 +78,5 @@ export const Messages = () => {
         <button className='bg-blue-800 hover:bg-blue-900 transition-all text-white p-2 rounded-lg w-20 ml-2 font-medium'><SendIcon /></button>
       </form>
     </div>
-  )
-}
+  );
+};
