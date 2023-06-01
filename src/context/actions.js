@@ -7,4 +7,5 @@ export const actions = {
   setIsMenuOpen: 'SET_IS_MENU_OPEN',
   setUnreadMessages: 'SET_UNREADMESSAGES',
   setLoadingMessages: 'SET_LOADING_MESSAGES',
+  setLoadingUsers: 'SET_LOADING_USERS,'
 }

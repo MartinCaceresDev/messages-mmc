@@ -8,4 +8,5 @@ export const chatInitialState = {
   isMenuOpen: false,
   unreadMessages: [],
   loadingMessages: false,
+  loadingUsers: false,
 }

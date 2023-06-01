@@ -42,6 +42,11 @@ export const chatReducer = (state, action) =>{
         ...state,
         loadingMessages: action.payload
       }
+    case actions.setLoadingUsers:
+      return {
+        ...state,
+        loadingUsers: action.payload
+      }
     default:
       return state
   }

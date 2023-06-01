@@ -22,10 +22,12 @@ export const ChatProvider = ({ children }) => {
   // GET USERS LIST
   const getUsers = async () => {
     try {
+      dispatch({ type: actions.setLoadingUsers, payload: true });
       const data = await makeRequest('get', '/api/users');
       const onlyOtherUsers = data.filter(item => item.user.uid !== user?.uid);
       joinToRooms(onlyOtherUsers);
       dispatch({ type: actions.setAllUsers, payload: onlyOtherUsers });
+      dispatch({ type: actions.setLoadingUsers, payload: false });
     } catch (err) {
       console.log(err);
     }
@@ -50,12 +52,12 @@ export const ChatProvider = ({ children }) => {
     if (chatState.otherUser) {
       (async () => {
         try {
-          dispatch({ type: actions.setLoadingMessages, payload: true })
+          dispatch({ type: actions.setLoadingMessages, payload: true });
           const roomId = useRoomsIds(user, null, chatState.otherUser);
           dispatch({ type: actions.setRoom, payload: roomId });
           const messagesDB = await makeRequest('get', `/api/chats/${roomId}`);
           dispatch({ type: actions.setAllMessages, payload: messagesDB });
-          dispatch({ type: actions.setLoadingMessages, payload: false })
+          dispatch({ type: actions.setLoadingMessages, payload: false });
         } catch (err) {
           console.log(err);
         }

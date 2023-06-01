@@ -5,7 +5,7 @@ import { Loading, SingleUser } from './';
 export const UsersBar = () => {
 
   const { logout, user } = useAuthContext();
-  const { allUsers, isMenuOpen, loadingMessages, dispatch } = useChatContext();
+  const { allUsers, isMenuOpen, loadingUsers, dispatch } = useChatContext();
   const [searchUser, setSearchUser] = useState('');
   const [matchingUsersList, setMatchingUsersList] = useState([]);
 
@@ -37,7 +37,7 @@ export const UsersBar = () => {
   } else {
     allUsers.length
       ? content = allUsers.map(({ user: item }) => <SingleUser otherUser={item} key={item.uid} />)
-      : loadingMessages
+      : loadingUsers
         ? content = <Loading />
         : content = <span className='text-white self-center mt-5'>There are no other users.</span>;
   }
