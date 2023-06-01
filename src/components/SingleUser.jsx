@@ -28,7 +28,7 @@ export const SingleUser = ({ otherUser: singleOtherUser }) => {
   }, [toggleSeen]);
 
   return (
-    <div onClick={handleUserClick} className={`flex ${unSeenMessages ? 'justify-between' : 'justify-start'}  items-center cursor-pointer hover:font-medium hover:bg-green-800 px-4 py-1 transition-all rounded-lg`}>
+    <div onClick={handleUserClick} className={`flex ${unSeenMessages ? 'justify-between' : 'justify-start'} px-2 items-center cursor-pointer hover:font-medium hover:bg-green-800 py-1 transition-all rounded-lg`}>
 
       {/* other user name */}
       <span className='capitalize text-white'>{singleOtherUser.displayName}</span>
